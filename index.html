@@ -5,67 +5,108 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0d10">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Taximètre GPS</title>
+<title>Taximètre Tunisie V4</title>
 <style>
-*{box-sizing:border-box} body{margin:0;background:#0b0d10;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-main{max-width:620px;margin:auto;padding:20px}.top{display:flex;justify-content:space-between;align-items:center}
-h1{font-size:27px;margin:8px 0}.badge{font-size:12px;background:#183927;color:#75e9a6;padding:7px 10px;border-radius:99px}
-.card{background:#171a20;border:1px solid #2c323b;border-radius:18px;padding:17px;margin:12px 0}
+*{box-sizing:border-box}body{margin:0;background:#0b0d10;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:620px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}
+h1{font-size:25px;margin:8px 0}.badge{font-size:11px;background:#173c29;color:#78eba8;padding:7px 10px;border-radius:99px;text-align:center}
+.card{background:#171a20;border:1px solid #303640;border-radius:18px;padding:16px;margin:11px 0}
 .fare{text-align:center;font-size:58px;font-weight:850}.fare small{font-size:20px;color:#aeb5bf}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{background:#101318;border-radius:14px;padding:14px}
-.label{color:#98a1ad;font-size:12px}.value{font-size:25px;font-weight:750;margin-top:4px}
-button{width:100%;border:0;border-radius:14px;padding:16px;font-size:16px;font-weight:800}
-.start{background:#2ac873;color:#071b10}.pause{background:#eda83e;color:#211500}.reset{background:#363d48;color:white}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.status{line-height:1.45;color:#d1d6dd;font-size:14px}
-.good{color:#63e99b}.warn{color:#ffca67}details summary{cursor:pointer}.settings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-input{width:100%;padding:11px;border:1px solid #3c434e;border-radius:10px;background:#0d1015;color:white;font-size:16px}small{color:#969faa}
-</style>
-</head>
+.mode{text-align:center;font-weight:800;font-size:15px}.move{color:#70e9a3}.wait{color:#ffc45d}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric{background:#101318;border-radius:14px;padding:13px}
+.label{color:#98a1ad;font-size:11px}.value{font-size:23px;font-weight:750;margin-top:4px}
+button{width:100%;border:0;border-radius:14px;padding:16px;font-size:16px;font-weight:800}.start{background:#2ac873;color:#071b10}
+.pause{background:#eda83e;color:#211500}.reset{background:#363d48;color:#fff}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}
+.status{line-height:1.45;color:#d1d6dd;font-size:13px}.good{color:#63e99b}.warn{color:#ffca67}
+details summary{cursor:pointer}.settings{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+input{width:100%;padding:10px;border:1px solid #3c434e;border-radius:10px;background:#0d1015;color:#fff;font-size:15px}small{color:#969faa}
+</style></head>
 <body><main>
-<div class="top"><h1>🚕 Taximètre GPS</h1><span class="badge">MODE HORS LIGNE</span></div>
-<div class="card"><div class="fare"><span id="fare">0.900</span> <small>DT</small></div></div>
+<div class="top"><h1>🚕 Taximètre Tunisie</h1><span class="badge">V4 • HORS LIGNE</span></div>
+<div class="card"><div class="fare"><span id="fare">0.900</span> <small>DT</small></div><div id="mode" class="mode">PRÊT</div></div>
 <div class="grid">
 <div class="metric"><div class="label">DISTANCE</div><div class="value"><span id="distance">0.000</span> km</div></div>
-<div class="metric"><div class="label">TEMPS</div><div class="value" id="time">00:00:00</div></div>
+<div class="metric"><div class="label">COURSE</div><div class="value" id="trip">00:00:00</div></div>
+<div class="metric"><div class="label">ATTENTE</div><div class="value" id="waiting">00:00:00</div></div>
 <div class="metric"><div class="label">VITESSE</div><div class="value"><span id="speed">0.0</span> km/h</div></div>
 <div class="metric"><div class="label">PRÉCISION GPS</div><div class="value"><span id="accuracy">--</span> m</div></div>
+<div class="metric"><div class="label">MAJORATION NUIT</div><div class="value" id="night">AUTO</div></div>
 </div>
-<div id="status" class="card status">Prêt. Active la localisation précise puis démarre la course.</div>
+<div id="status" class="card status">Active la localisation précise, puis démarre.</div>
 <button id="start" class="start">▶ DÉMARRER</button>
 <div class="actions"><button id="pause" class="pause">⏸ PAUSE</button><button id="reset" class="reset">↻ RESET</button></div>
-<details class="card"><summary>⚙️ Tarifs</summary><div class="settings">
-<label><small>Départ (DT)</small><input id="base" type="number" step=".001" value=".900"></label>
-<label><small>DT / km</small><input id="perKm" type="number" step=".001" value="1"></label>
-<label><small>DT / minute</small><input id="perMin" type="number" step=".001" value="0"></label>
-<label><small>Précision max (m)</small><input id="maxAcc" type="number" value="50"></label>
+<details class="card"><summary>⚙️ Paramètres</summary><div class="settings">
+<label><small>Départ DT</small><input id="base" type="number" step=".001" value=".900"></label>
+<label><small>Distance / impulsion (m)</small><input id="metersStep" type="number" value="79"></label>
+<label><small>Prix impulsion distance DT</small><input id="distStep" type="number" step=".001" value=".046"></label>
+<label><small>Attente / impulsion (s)</small><input id="waitSeconds" type="number" value="18"></label>
+<label><small>Prix impulsion attente DT</small><input id="waitStep" type="number" step=".001" value=".046"></label>
+<label><small>Seuil arrêt (km/h)</small><input id="stopSpeed" type="number" step=".1" value="3"></label>
+<label><small>Délai avant attente (s)</small><input id="stopDelay" type="number" value="5"></label>
+<label><small>Précision GPS max (m)</small><input id="maxAcc" type="number" value="60"></label>
 </div></details>
-<div class="card status"><b>Hors connexion :</b> ouvre l'application une première fois avec Internet après publication, puis ajoute-la à l'écran d'accueil. Les fichiers seront conservés sur le téléphone. Le GPS peut fonctionner sans données mobiles, mais la première acquisition peut être plus lente. Calcul indicatif, non homologué comme taximètre réglementaire.</div>
+<div class="card status"><b>Principe V4 :</b> en mouvement, le prix augmente par distance. À l'arrêt, après quelques secondes de confirmation, il augmente par temps d'attente. De 21:00 à 05:00, les nouvelles unités facturées sont majorées de 50 %. Les paramètres restent modifiables. Outil indicatif : ce téléphone n'est pas un taximètre homologué.</div>
 </main>
 <script>
-const $=x=>document.getElementById(x), N=x=>Math.max(0,parseFloat($(x).value)||0);
-let running=false, watch=null, last=null, km=0, seconds=0, ticker=null, lastAcceptedAt=0;
+const $=x=>document.getElementById(x),N=x=>Math.max(0,parseFloat($(x).value)||0);
+let running=false,watchId=null,timer=null,last=null,lastAccepted=0,km=0,tripSec=0,waitSec=0;
+let fare=0.9, distCarryM=0, waitCarryS=0, stationarySince=null, gpsSpeed=0, movementMode="ready";
+const keys=["base","metersStep","distStep","waitSeconds","waitStep","stopSpeed","stopDelay","maxAcc"];
 function H(a,b){const R=6371,r=x=>x*Math.PI/180,d1=r(b.latitude-a.latitude),d2=r(b.longitude-a.longitude);
 const q=Math.sin(d1/2)**2+Math.cos(r(a.latitude))*Math.cos(r(b.latitude))*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
-function clock(s){return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(x=>String(x).padStart(2,"0")).join(":")}
-function save(){localStorage.setItem("taximeter",JSON.stringify({km,seconds,base:$("base").value,perKm:$("perKm").value,perMin:$("perMin").value,maxAcc:$("maxAcc").value}))}
-function draw(){ $("distance").textContent=km.toFixed(3); $("time").textContent=clock(seconds);
-$("fare").textContent=(N("base")+km*N("perKm")+seconds/60*N("perMin")).toFixed(3); save()}
-function ok(p){$("accuracy").textContent=Math.round(p.coords.accuracy||0);$("speed").textContent=p.coords.speed==null?"0.0":Math.max(0,p.coords.speed*3.6).toFixed(1);
-if(!running)return; const c={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy||999};
-if(c.accuracy>N("maxAcc")){$("status").innerHTML='<span class="warn">GPS imprécis ('+Math.round(c.accuracy)+' m).</span> Point ignoré.';return}
-const now=Date.now();
-if(last){const d=H(last,c), dt=Math.max(1,(now-lastAcceptedAt)/1000), implied=d/(dt/3600);
-if(d>=0.002 && d<=0.3 && implied<180){km+=d;draw()}}
-last=c;lastAcceptedAt=now;$("status").innerHTML='<span class="good">● GPS actif</span> — mesure en cours.'}
-function err(e){$("status").innerHTML='<span class="warn">Erreur GPS :</span> '+e.message+'. Vérifie Localisation > autorisation du navigateur/application.'}
-function start(){if(running)return;if(!navigator.geolocation){err({message:"géolocalisation non disponible"});return}
-running=true;last=null;lastAcceptedAt=0;$("status").textContent="Recherche du GPS…";
-watch=navigator.geolocation.watchPosition(ok,err,{enableHighAccuracy:true,maximumAge:0,timeout:20000});
-ticker=setInterval(()=>{if(running){seconds++;draw()}},1000)}
-function pause(){running=false;last=null;if(watch!==null){navigator.geolocation.clearWatch(watch);watch=null}if(ticker){clearInterval(ticker);ticker=null}$("speed").textContent="0.0";$("status").textContent="Course en pause.";save()}
-function reset(){pause();km=0;seconds=0;draw();$("status").textContent="Compteur remis à zéro."}
-$("start").onclick=start;$("pause").onclick=pause;$("reset").onclick=reset;
-["base","perKm","perMin","maxAcc"].forEach(x=>$(x).onchange=draw);
-try{let s=JSON.parse(localStorage.getItem("taximeter"));if(s){km=s.km||0;seconds=s.seconds||0;["base","perKm","perMin","maxAcc"].forEach(k=>{if(s[k]!=null)$(k).value=s[k]})}}catch(e){}draw();
-if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
+function clock(s){return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(v=>String(v).padStart(2,"0")).join(":")}
+function nightNow(){let h=new Date().getHours();return h>=21||h<5}
+function addCharge(v){fare += v*(nightNow()?1.5:1)}
+function save(){let p={km,tripSec,waitSec,fare,distCarryM,waitCarryS};keys.forEach(k=>p[k]=$(k).value);localStorage.setItem("taxiv4",JSON.stringify(p))}
+function draw(){
+ $("distance").textContent=km.toFixed(3);$("trip").textContent=clock(tripSec);$("waiting").textContent=clock(waitSec);$("fare").textContent=fare.toFixed(3);
+ $("night").textContent=nightNow()?"50%":"NON";
+ $("mode").textContent=movementMode==="wait"?"ATTENTE":movementMode==="move"?"EN MOUVEMENT":movementMode==="ready"?"PRÊT":"PAUSE";
+ $("mode").className="mode "+(movementMode==="wait"?"wait":movementMode==="move"?"move":"");save()
+}
+function chargeDistance(m){
+ distCarryM+=m;
+ const step=Math.max(1,N("metersStep"));
+ while(distCarryM>=step){addCharge(N("distStep"));distCarryM-=step}
+}
+function chargeWaitOneSecond(){
+ waitSec++;waitCarryS++;
+ const step=Math.max(1,N("waitSeconds"));
+ while(waitCarryS>=step){addCharge(N("waitStep"));waitCarryS-=step}
+}
+function gpsOK(p){
+ const acc=p.coords.accuracy||999;$("accuracy").textContent=Math.round(acc);
+ gpsSpeed=p.coords.speed==null?gpsSpeed:Math.max(0,p.coords.speed*3.6);$("speed").textContent=gpsSpeed.toFixed(1);
+ if(!running)return;
+ const c={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:acc},now=Date.now();
+ if(acc>N("maxAcc")){$("status").innerHTML='<span class="warn">GPS imprécis ('+Math.round(acc)+' m).</span> Le point est ignoré.';return}
+ if(!last){last=c;lastAccepted=now;$("status").innerHTML='<span class="good">● GPS actif</span>';return}
+ const d=H(last,c),dt=Math.max(1,(now-lastAccepted)/1000),implied=d/(dt/3600);
+ // GPS speed is preferred; displacement-derived speed helps devices returning null speed.
+ const effectiveSpeed=(p.coords.speed!=null)?Math.max(0,p.coords.speed*3.6):Math.min(180,implied);
+ gpsSpeed=effectiveSpeed;$("speed").textContent=effectiveSpeed.toFixed(1);
+ if(d>=0.0015 && d<=0.3 && implied<180){
+   km+=d;chargeDistance(d*1000);last=c;lastAccepted=now;stationarySince=null;movementMode="move";
+ } else if(effectiveSpeed>=N("stopSpeed")){
+   stationarySince=null;movementMode="move";
+ } else {
+   if(stationarySince===null)stationarySince=now;
+   if((now-stationarySince)/1000>=N("stopDelay"))movementMode="wait";
+ }
+ $("status").innerHTML='<span class="good">● GPS actif</span> — '+(movementMode==="wait"?"attente détectée.":"mesure en cours.");draw()
+}
+function gpsErr(e){$("status").innerHTML='<span class="warn">Erreur GPS :</span> '+e.message}
+function start(){
+ if(running)return;if(!navigator.geolocation){gpsErr({message:"géolocalisation indisponible"});return}
+ if(tripSec===0 && km===0){fare=N("base");distCarryM=0;waitCarryS=0}
+ running=true;movementMode="move";last=null;lastAccepted=0;stationarySince=null;
+ watchId=navigator.geolocation.watchPosition(gpsOK,gpsErr,{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+ timer=setInterval(()=>{if(!running)return;tripSec++;if(movementMode==="wait")chargeWaitOneSecond();draw()},1000);draw()
+}
+function pause(){running=false;movementMode="pause";last=null;stationarySince=null;if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null}
+if(timer){clearInterval(timer);timer=null}$("speed").textContent="0.0";$("status").textContent="Course en pause.";draw()}
+function reset(){pause();km=0;tripSec=0;waitSec=0;distCarryM=0;waitCarryS=0;fare=N("base");movementMode="ready";localStorage.removeItem("taxiv4");draw();$("status").textContent="Compteur remis à zéro."}
+$("start").onclick=start;$("pause").onclick=pause;$("reset").onclick=reset;keys.forEach(k=>$(k).onchange=()=>{if(tripSec===0)fare=N("base");draw()});
+try{let s=JSON.parse(localStorage.getItem("taxiv4"));if(s){km=s.km||0;tripSec=s.tripSec||0;waitSec=s.waitSec||0;fare=s.fare??.9;distCarryM=s.distCarryM||0;waitCarryS=s.waitCarryS||0;keys.forEach(k=>{if(s[k]!=null)$(k).value=s[k]})}}catch(e){}draw();
+if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
 </script></body></html>
